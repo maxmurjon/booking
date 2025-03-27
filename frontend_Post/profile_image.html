@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+
+        .upload-form {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .upload-form h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .upload-form input {
+            margin: 10px 0;
+            padding: 8px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .upload-form button {
+            background-color: #5a67d8;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .upload-form button:hover {
+            background-color: #434190;
+        }
+
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-form">
+        <h2>Upload User Image</h2>
+        <form id="imageForm">
+            <input type="text" id="userId" name="user_id" placeholder="Enter User ID" required>
+            <input type="file" id="imageFile" name="image" accept="image/*" required>
+            <button type="submit">Upload</button>
+        </form>
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        document.getElementById('imageForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent form submission
+
+            const userId = document.getElementById('userId').value;
+            const imageFile = document.getElementById('imageFile').files[0];
+
+            if (!userId || !imageFile) {
+                alert('Please provide User ID and select an image.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('user_id', userId);
+            formData.append('image', imageFile);
+
+            try {
+                const response = await fetch('http://62.171.149.94:8000/uploaduserimage', { // Update the URL to match your API endpoint
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.json();
+                const statusDiv = document.getElementById('status');
+
+                if (response.ok) {
+                    statusDiv.innerHTML = `<span style="color: green;">Image uploaded successfully!</span>`;
+                    console.log(result);
+                } else {
+                    statusDiv.innerHTML = `<span style="color: red;">Failed to upload image: ${result.error}</span>`;
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                document.getElementById('status').innerHTML = `<span style="color: red;">Error uploading image.</span>`;
+            }
+        });
+    </script>
+</body>
+</html>

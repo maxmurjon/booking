@@ -1,0 +1,205 @@
+definitions:
+  models.Course:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      price_no_tutor:
+        type: number
+      price_tutor:
+        type: number
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.CreateCourse:
+    properties:
+      description:
+        type: string
+      price_no_tutor:
+        type: number
+      price_tutor:
+        type: number
+      title:
+        type: string
+    type: object
+  models.DefaultError:
+    properties:
+      message:
+        type: string
+    type: object
+  models.GetListCourseResponse:
+    properties:
+      count:
+        type: integer
+      courses:
+        items:
+          $ref: '#/definitions/models.Course'
+        type: array
+    type: object
+  models.SuccessResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  models.UpdateCourse:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      price_no_tutor:
+        type: number
+      price_tutor:
+        type: number
+      title:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /courses:
+    get:
+      consumes:
+      - application/json
+      description: Get list of courses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetListCourseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Get list of courses
+      tags:
+      - courses
+    post:
+      consumes:
+      - application/json
+      description: Create a new course with the input payload
+      parameters:
+      - description: Create Course
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateCourse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Create a new course
+      tags:
+      - courses
+  /courses/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a course by ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Delete a course by ID
+      tags:
+      - courses
+    get:
+      consumes:
+      - application/json
+      description: Get a course by ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Get a course by ID
+      tags:
+      - courses
+    put:
+      consumes:
+      - application/json
+      description: Update an existing course with the input payload
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Course
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateCourse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Update an existing course
+      tags:
+      - courses
+swagger: "2.0"

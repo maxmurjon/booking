@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Category</title>
+</head>
+<body>
+    <h1>Create Category</h1>
+    <form action="http://62.171.149.94:8000/createcategory" method="POST" enctype="multipart/form-data">
+        <!-- Kategoriya nomi -->
+        <div>
+            <label for="name">Category Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <br>
+        <!-- Tavsif -->
+        <div>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+        </div>
+        <br>
+        <!-- Rasm yuklash -->
+        <div>
+            <label for="image">Upload Image:</label>
+            <input type="file" id="image" name="image" accept="image/*" required>
+        </div>
+        <br>
+        <!-- Formni yuborish -->
+        <button type="submit">Create Categgory</button>
+    </form>
+</body>
+</html>
