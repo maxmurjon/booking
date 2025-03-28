@@ -10,9 +10,10 @@ import (
 )
 
 type Store struct {
-	db             *pgxpool.Pool
-	user           storage.UserRepoI
-	role           storage.RoleRepoI
+	db     *pgxpool.Pool
+	role   storage.RoleRepoI
+	user   storage.UserRepoI
+	doctor storage.DoctorRepoI
 }
 
 func NewPostgres(psqlConnString string) storage.StorageRepoI {
@@ -51,4 +52,13 @@ func (s *Store) Role() storage.RoleRepoI {
 		}
 	}
 	return s.role
+}
+
+func (s *Store) Doctor() storage.DoctorRepoI {
+	if s.doctor == nil {
+		s.doctor = &doctorRepo{
+			db: s.db,
+		}
+	}
+	return s.doctor
 }

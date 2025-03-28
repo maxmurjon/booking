@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS doctors (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     specialty VARCHAR(100) NOT NULL,  
     work_start TIME NOT NULL,         

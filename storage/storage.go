@@ -8,6 +8,7 @@ import (
 type StorageRepoI interface {
 	User() UserRepoI
 	Role() RoleRepoI
+	Doctor() DoctorRepoI
 	CloseDB()
 }
 
@@ -27,4 +28,13 @@ type RoleRepoI interface {
 	Update(ctx context.Context, req *models.UpdateRole) (int64, error)
 	Delete(ctx context.Context, req *models.PrimaryKey) (int64, error)
 	GetByName(ctx context.Context, req *models.Role) (*models.Role, error)
+}
+
+
+type DoctorRepoI interface {
+	Create(ctx context.Context, req *models.CreateDoctor) (*models.Doctor, error)
+	GetByID(ctx context.Context, id string) (*models.Doctor, error)
+	GetList(ctx context.Context, req *models.GetListDoctorRequest) (*models.GetListDoctorResponse, error)
+	Update(ctx context.Context, req *models.UpdateDoctor) (int64, error)
+	Delete(ctx context.Context, id string) (int64, error)
 }
