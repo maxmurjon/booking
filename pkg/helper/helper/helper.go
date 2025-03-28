@@ -1,16 +1,13 @@
 package helper
 
 import (
-	"fmt"
+	"errors"
 	"sort"
 	"strconv"
 	"strings"
-
-	"errors"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/spf13/cast"
 )
 
 type queryParams struct {
@@ -19,8 +16,8 @@ type queryParams struct {
 }
 
 type TokenInfo struct {
-	UserID     string `json:"user_id"`
-	ClientType string `json:"client_type"`
+	UserID string `json:"user_id"`
+	Role   string `json:"role"`
 }
 
 func ReplaceQueryParams(namedQuery string, params map[string]interface{}) (string, []interface{}) {
@@ -31,10 +28,7 @@ func ReplaceQueryParams(namedQuery string, params map[string]interface{}) (strin
 	)
 
 	for k, v := range params {
-		arr = append(arr, queryParams{
-			Key: k,
-			Val: v,
-		})
+		arr = append(arr, queryParams{Key: k, Val: v})
 	}
 
 	sort.Slice(arr, func(i, j int) bool {
@@ -60,12 +54,8 @@ func ReplaceSQL(old, searchPattern string) string {
 	return old
 }
 
-// GenerateJWT ...
-func GenerateJWT(m map[string]interface{}, tokenExpireTime time.Duration, tokenSecretKey string) (tokenString string, err error) {
-	var token *jwt.Token
-
-	token = jwt.New(jwt.SigningMethodHS256)
-
+func GenerateJWT(m map[string]interface{}, tokenExpireTime time.Duration, tokenSecretKey string) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 
 	for key, value := range m {
@@ -75,42 +65,37 @@ func GenerateJWT(m map[string]interface{}, tokenExpireTime time.Duration, tokenS
 	claims["iat"] = time.Now().Unix()
 	claims["exp"] = time.Now().Add(tokenExpireTime).Unix()
 
-	tokenString, err = token.SignedString([]byte(tokenSecretKey))
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
+	return token.SignedString([]byte(tokenSecretKey))
 }
 
-func ParseClaims(token string, secretKey string) (result TokenInfo, err error) {
-	var claims jwt.MapClaims
-	fmt.Println("Hello")
-	claims, err = ExtractClaims(token, secretKey)
+func ParseClaims(token string, secretKey string) (TokenInfo, error) {
+	claims, err := ExtractClaims(token, secretKey)
 	if err != nil {
-		return result, err
-	}
-	fmt.Println(claims)
-	result.UserID = cast.ToString(claims["UserId"])
-	if len(result.UserID) <= 0 {
-		err = errors.New("cannot parse 'user_id' field")
-		return result, err
+		return TokenInfo{}, err
 	}
 
-	result.ClientType = cast.ToString(claims["client_type"])
+	userID, ok := claims["id"].(string)
+	if !ok || userID == "" {
+		return TokenInfo{}, errors.New("cannot parse 'id' field")
+	}
 
-	return
+	role, ok := claims["role"].(string)
+	if !ok {
+		roleFloat, ok := claims["role"].(float64)
+		if !ok {
+			return TokenInfo{}, errors.New("cannot parse 'role' field")
+		}
+		role = strconv.Itoa(int(roleFloat))
+	}
+
+	return TokenInfo{UserID: userID, Role: role}, nil
 }
 
-// ExtractClaims extracts claims from given token
 func ExtractClaims(tokenString string, tokenSecretKey string) (jwt.MapClaims, error) {
-	var (
-		token *jwt.Token
-		err   error
-	)
-
-	token, err = jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// check token signing method etc
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing method")
+		}
 		return []byte(tokenSecretKey), nil
 	})
 
@@ -119,18 +104,17 @@ func ExtractClaims(tokenString string, tokenSecretKey string) (jwt.MapClaims, er
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
-	if !(ok && token.Valid) {
+	if !ok || !token.Valid {
 		return nil, errors.New("invalid token")
 	}
 
 	return claims, nil
 }
 
-// ExtractToken checks and returns token part of input string
-func ExtractToken(bearer string) (token string, err error) {
-	strArr := strings.Split(bearer, " ")
-	if len(strArr) == 2 {
-		return strArr[1], nil
+func ExtractToken(bearer string) (string, error) {
+	parts := strings.Split(bearer, " ")
+	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+		return "", errors.New("invalid token format, expected 'Bearer <token>'")
 	}
-	return token, errors.New("wrong token format")
+	return parts[1], nil
 }

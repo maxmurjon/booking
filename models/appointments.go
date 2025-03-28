@@ -15,7 +15,6 @@ type Appointment struct {
 }
 
 type CreateAppointment struct {
-	ID              int       `json:"id"`
 	PatientID       string    `json:"patient_id"`
 	DoctorID        string    `json:"doctor_id"`
 	AppointmentDate time.Time `json:"appointment_date"`
@@ -32,10 +31,13 @@ type UpdateAppointment struct {
 }
 
 type GetListAppointmentRequest struct {
-	Offset int64  `json:"offset"` // Sahifalash uchun int64
-	Limit  int64  `json:"limit"`  // Sahifalash uchun int64
-	Search string `json:"search"`
+    DoctorID       string    `json:"doctor_id,omitempty"`        
+    PatientID      string    `json:"patient_id,omitempty"`       
+    AppointmentDate time.Time `json:"appointment_date,omitempty"`
+    Offset         int       `json:"offset"`                    
+    Limit          int       `json:"limit"`                     
 }
+
 
 type GetListAppointmentResponse struct {
 	Count        int            `json:"count"`

@@ -20,7 +20,6 @@ func (h *Handler) CreateRole(c *gin.Context) {
 
 	fmt.Println(entity)
 
-	// Create the Role in the storage
 	id, err := h.strg.Role().Create(context.Background(), entity)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.DefaultError{
@@ -29,7 +28,6 @@ func (h *Handler) CreateRole(c *gin.Context) {
 		return
 	}
 
-	// Get the Role by ID
 	role, err := h.strg.Role().GetByID(context.Background(), &models.PrimaryKey{Id: id.Id})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.DefaultError{
@@ -55,7 +53,6 @@ func (h *Handler) UpdateRole(c *gin.Context) {
 
 	fmt.Println(entity)
 
-	// Update the Role
 	if _, err := h.strg.Role().Update(context.Background(), &entity); err != nil {
 		c.JSON(http.StatusInternalServerError, models.DefaultError{
 			Message: "Failed to update Role: " + err.Error(),
@@ -70,7 +67,6 @@ func (h *Handler) UpdateRole(c *gin.Context) {
 }
 
 func (h *Handler) GetRolesList(c *gin.Context) {
-	// Retrieve the list of Roles (offset and limit can be implemented later)
 	resp, err := h.strg.Role().GetList(context.Background(), &models.GetListRoleRequest{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.DefaultError{
@@ -85,7 +81,6 @@ func (h *Handler) GetRolesList(c *gin.Context) {
 func (h *Handler) GetRolesByIDHandler(c *gin.Context) {
 	id := c.Param("id")
 
-	// Get the Role by ID
 	role, err := h.strg.Role().GetByID(context.Background(), &models.PrimaryKey{Id: id})
 	if err != nil {
 		c.JSON(http.StatusNotFound, models.DefaultError{
@@ -103,7 +98,6 @@ func (h *Handler) GetRolesByIDHandler(c *gin.Context) {
 func (h *Handler) DeleteRole(c *gin.Context) {
 	id := c.Param("id")
 
-	// Delete the Role by ID
 	deletedRole, err := h.strg.Role().Delete(context.Background(), &models.PrimaryKey{Id: id})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.DefaultError{

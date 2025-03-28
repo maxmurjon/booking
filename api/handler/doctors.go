@@ -17,6 +17,25 @@ func (h *Handler) CreateDoctor(c *gin.Context) {
 		return
 	}
 
+	role,err:=h.strg.Role().GetByName(context.Background(),&models.Role{Name: "doctor"})
+	if err!=nil{
+		c.JSON(http.StatusBadRequest, models.DefaultError{
+			Message: "Failed to get Doctor role: " + err.Error(),
+		})
+		return	
+	}
+
+	_,err=h.strg.User().Update(context.Background(),&models.UpdateUser{
+		Id: entity.UserId,
+		RoleId: &role.Id,
+	})
+	if err!=nil{
+		c.JSON(http.StatusBadRequest, models.DefaultError{
+			Message: "Failed to change User's Role to Doctor: " + err.Error(),
+		})
+		return
+	}
+	
 	Doctor, err := h.strg.Doctor().Create(context.Background(), entity)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.DefaultError{

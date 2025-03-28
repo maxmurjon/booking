@@ -115,7 +115,6 @@ func (d *doctorRepo) GetList(ctx context.Context, req *models.GetListDoctorReque
 		limit = " LIMIT :limit"
 	}
 
-	// Count query
 	cQ := `SELECT count(1) FROM "doctors"` + filter
 	cQ, arr = helper.ReplaceQueryParams(cQ, params)
 	err := d.db.QueryRow(ctx, cQ, arr...).Scan(&res.Count)
@@ -123,7 +122,6 @@ func (d *doctorRepo) GetList(ctx context.Context, req *models.GetListDoctorReque
 		return res, err
 	}
 
-	// Main query
 	q := query + filter + order + arrangement + offset + limit
 	q, arr = helper.ReplaceQueryParams(q, params)
 

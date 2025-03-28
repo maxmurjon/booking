@@ -33,7 +33,6 @@ func (u *roleRepo) Create(ctx context.Context, req *models.CreateRole) (*models.
 	return pKey, nil
 }
 
-// GetByID retrieves a role by its ID.
 func (u *roleRepo) GetByID(ctx context.Context, req *models.PrimaryKey) (*models.Role, error) {
 	res := &models.Role{}
 	query := `SELECT
@@ -76,7 +75,6 @@ func (u *roleRepo) GetByName(ctx context.Context, req *models.Role) (*models.Rol
 	return res, nil
 }
 
-// GetList retrieves a list of roles with pagination and optional search functionality.
 func (u *roleRepo) GetList(ctx context.Context, req *models.GetListRoleRequest) (*models.GetListRoleResponse, error) {
 	res := &models.GetListRoleResponse{}
 	params := make(map[string]interface{})
@@ -90,7 +88,6 @@ func (u *roleRepo) GetList(ctx context.Context, req *models.GetListRoleRequest) 
 	offset := " OFFSET 0"
 	limit := " LIMIT 10"
 
-	// Implement search on role_name only
 	if len(req.Search) > 0 {
 		params["search"] = req.Search
 		filter += " AND role_name ILIKE '%' || :search || '%'"
@@ -106,7 +103,6 @@ func (u *roleRepo) GetList(ctx context.Context, req *models.GetListRoleRequest) 
 		limit = " LIMIT :limit"
 	}
 
-	// Count query
 	cQ := `SELECT count(1) FROM roles` + filter
 	cQ, arr = helper.ReplaceQueryParams(cQ, params)
 	err := u.db.QueryRow(ctx, cQ, arr...).Scan(
@@ -116,7 +112,6 @@ func (u *roleRepo) GetList(ctx context.Context, req *models.GetListRoleRequest) 
 		return res, err
 	}
 
-	// Main query for retrieving roles
 	q := query + filter + offset + limit
 	q, arr = helper.ReplaceQueryParams(q, params)
 	rows, err := u.db.Query(ctx, q, arr...)
@@ -142,14 +137,12 @@ func (u *roleRepo) GetList(ctx context.Context, req *models.GetListRoleRequest) 
 	return res, nil
 }
 
-// Update updates a role in the roles table.
 func (u *roleRepo) Update(ctx context.Context, req *models.UpdateRole) (int64, error) {
 	query := `UPDATE roles SET
 		name = $2
 	WHERE
 		id = $1`
 
-	// Execute the query with positional parameters
 	result, err := u.db.Exec(ctx, query, req.Id, req.Name)
 	if err != nil {
 		return 0, err
@@ -160,7 +153,6 @@ func (u *roleRepo) Update(ctx context.Context, req *models.UpdateRole) (int64, e
 	return rowsAffected, nil
 }
 
-// Delete deletes a role from the roles table by its ID.
 func (u *roleRepo) Delete(ctx context.Context, req *models.PrimaryKey) (int64, error) {
 	query := `DELETE FROM roles WHERE id = $1`
 

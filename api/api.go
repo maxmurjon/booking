@@ -12,34 +12,53 @@ import (
 func SetUpAPI(r *gin.Engine, h handler.Handler, cfg config.Config) {
 	r.Use(customCORSMiddleware())
 
-	// Auth Endpoints
+	// Ochiq APIlar (Hamma foydalanishi mumkin)
 	r.POST("/register", h.Register)
 	r.POST("/login", h.Login)
 
-	//Role Endpoints
-	r.POST("/createrole", h.CreateRole)
-	r.PUT("/updaterole", h.UpdateRole)
-	r.GET("/roles", h.GetRolesList)
-	r.GET("/role/:id", h.GetRolesByIDHandler)
-	r.DELETE("/deleterole/:id", h.DeleteRole)
+	// Yopiq APIlar (Foydalanuvchi autentifikatsiyadan o‘tishi kerak)
+	protected := r.Group("/")
+	protected.Use(h.AuthMiddleware())
+	{
+		// Users
+		protected.POST("/createuser", h.CreateUser)
+		protected.PUT("/updateuser", h.UpdateUser)
+		protected.GET("/users", h.GetUsersList)
+		protected.GET("/user/:id", h.GetUsersByIDHandler)
+		protected.DELETE("/deleteuser/:id", h.DeleteUser)
 
-	// Users Endpoints
-	r.POST("/createuser", h.CreateUser)
-	r.PUT("/updateuser", h.UpdateUser)
-	r.GET("/users", h.GetUsersList)
-	r.GET("/user/:id", h.GetUsersByIDHandler)
-	r.DELETE("/deleteuser/:id", h.DeleteUser)
+		// Appointments
+		protected.POST("/createappointment", h.CreateAppointment)
+		protected.PUT("/updateappointment", h.UpdateAppointment)
+		protected.GET("/appointments", h.GetAppointmentsList)
+		protected.GET("/appointment/:id", h.GetAppointmentsByIDHandler)
+		protected.DELETE("/deleteappointment/:id", h.DeleteAppointment)
+	}
 
-	// Doctors Endpoints
-	r.POST("/createdoctor", h.CreateDoctor)
-	r.PUT("/updatedoctor", h.UpdateDoctor)
-	r.GET("/doctors", h.GetDoctorsList)
-	r.GET("/doctor/:id", h.GetDoctorsByIDHandler)
-	r.DELETE("/deletedoctor/:id", h.DeleteDoctor)
+	// Admin APIlar (Faqat admin foydalanishi mumkin)
+	admin := r.Group("/")
+	admin.Use(h.AuthMiddleware(), h.RoleMiddleware("admin", "doctor"))
+	{
+		// Roles
+		admin.POST("/createrole", h.CreateRole)
+		admin.PUT("/updaterole", h.UpdateRole)
+		admin.GET("/roles", h.GetRolesList)
+		admin.GET("/role/:id", h.GetRolesByIDHandler)
+		admin.DELETE("/deleterole/:id", h.DeleteRole)
 
+		// Doctors
+		admin.POST("/createdoctor", h.CreateDoctor)
+		admin.PUT("/updatedoctor", h.UpdateDoctor)
+		admin.GET("/doctors", h.GetDoctorsList)
+		admin.GET("/doctor/:id", h.GetDoctorsByIDHandler)
+		admin.DELETE("/deletedoctor/:id", h.DeleteDoctor)
+	}
+
+	// Swagger
 	url := ginSwagger.URL("swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 }
+
 
 func customCORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
