@@ -6,14 +6,13 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"comics/storage"
+	"booking/storage"
 )
 
 type Store struct {
 	db             *pgxpool.Pool
 	user           storage.UserRepoI
 	role           storage.RoleRepoI
-	userRole       storage.UserRoleRepoI
 }
 
 func NewPostgres(psqlConnString string) storage.StorageRepoI {
@@ -52,13 +51,4 @@ func (s *Store) Role() storage.RoleRepoI {
 		}
 	}
 	return s.role
-}
-
-func (s *Store) UserRole() storage.UserRoleRepoI {
-	if s.userRole == nil {
-		s.userRole = &userRoleRepo{
-			db: s.db,
-		}
-	}
-	return s.userRole
 }

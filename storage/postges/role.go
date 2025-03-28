@@ -1,8 +1,8 @@
 package postgres
 
 import (
-	"comics/models"
-	"comics/pkg/helper/helper"
+	"booking/models"
+	"booking/pkg/helper/helper"
 	"context"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -15,14 +15,13 @@ type roleRepo struct {
 func (u *roleRepo) Create(ctx context.Context, req *models.CreateRole) (*models.PrimaryKey, error) {
 	query := `
 		INSERT INTO roles (
-			name,
-			description
-		) VALUES ($1,$2)
+			name
+		) VALUES ($1)
 		RETURNING id;
 	`
 
-	var newID int
-	err := u.db.QueryRow(ctx, query, req.RoleName, req.Description).Scan(&newID)
+	var newID string
+	err := u.db.QueryRow(ctx, query, req.Name).Scan(&newID)
 	if err != nil {
 		return nil, err
 	}
@@ -39,8 +38,7 @@ func (u *roleRepo) GetByID(ctx context.Context, req *models.PrimaryKey) (*models
 	res := &models.Role{}
 	query := `SELECT
 		id,
-		name,
-		description
+		name
 	FROM
 		roles
 	WHERE
@@ -48,8 +46,7 @@ func (u *roleRepo) GetByID(ctx context.Context, req *models.PrimaryKey) (*models
 
 	err := u.db.QueryRow(ctx, query, req.Id).Scan(
 		&res.Id,
-		&res.RoleName,
-		&res.Description,
+		&res.Name,
 	)
 	if err != nil {
 		return res, err
@@ -58,21 +55,19 @@ func (u *roleRepo) GetByID(ctx context.Context, req *models.PrimaryKey) (*models
 	return res, nil
 }
 
-func (u *roleRepo) GetByName(ctx context.Context, req *models.PrimaryKeyUUID) (*models.Role, error) {
+func (u *roleRepo) GetByName(ctx context.Context, req *models.Role) (*models.Role, error) {
 	res := &models.Role{}
 	query := `SELECT
 		id,
-		name,
-		description
+		name
 	FROM
 		roles
 	WHERE
 		name = $1`
 
-	err := u.db.QueryRow(ctx, query, req.ID).Scan(
+	err := u.db.QueryRow(ctx, query, req.Name).Scan(
 		&res.Id,
-		&res.RoleName,
-		&res.Description,
+		&res.Name,
 	)
 	if err != nil {
 		return res, err
@@ -89,10 +84,8 @@ func (u *roleRepo) GetList(ctx context.Context, req *models.GetListRoleRequest) 
 
 	query := `SELECT
 		id,
-		name,
-		description
-	FROM
-		roles`
+		name
+	FROM roles`
 	filter := " WHERE 1=1"
 	offset := " OFFSET 0"
 	limit := " LIMIT 10"
@@ -136,8 +129,8 @@ func (u *roleRepo) GetList(ctx context.Context, req *models.GetListRoleRequest) 
 		obj := &models.Role{}
 		err = rows.Scan(
 			&obj.Id,
-			&obj.RoleName,
-			&obj.Description,
+			&obj.Name,
+			
 		)
 		if err != nil {
 			return res, err
@@ -152,13 +145,12 @@ func (u *roleRepo) GetList(ctx context.Context, req *models.GetListRoleRequest) 
 // Update updates a role in the roles table.
 func (u *roleRepo) Update(ctx context.Context, req *models.UpdateRole) (int64, error) {
 	query := `UPDATE roles SET
-		name = $1,
-		description = $2
+		name = $2
 	WHERE
-		id = $3`
+		id = $1`
 
 	// Execute the query with positional parameters
-	result, err := u.db.Exec(ctx, query, req.RoleName, req.Description, req.Id)
+	result, err := u.db.Exec(ctx, query, req.Id, req.Name)
 	if err != nil {
 		return 0, err
 	}

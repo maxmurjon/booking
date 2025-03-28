@@ -1,8 +1,8 @@
 package api
 
 import (
-	"comics/api/handler"
-	"comics/config"
+	"booking/api/handler"
+	"booking/config"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -12,11 +12,10 @@ import (
 func SetUpAPI(r *gin.Engine, h handler.Handler, cfg config.Config) {
 	r.Use(customCORSMiddleware())
 
-	r.Static("/uploads", "./uploads")
-
 	// Auth Endpoints
 	r.POST("/register", h.Register)
 	r.POST("/login", h.Login)
+	
 	// Users Endpoints
 	r.POST("/createuser", h.CreateUser)
 	r.PUT("/updateuser", h.UpdateUser)
@@ -38,9 +37,9 @@ func SetUpAPI(r *gin.Engine, h handler.Handler, cfg config.Config) {
 
 func customCORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")                                                                                                      // Barcha manbalarga ruxsat berish
-		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH, DELETE, HEAD")                                                          // Ruxsat etilgan metodlar
-		c.Header("Access-Control-Allow-Headers", "Platform-Id, Content-Type, Content-Length, Accept-Encoding, X-CSF-TOKEN, Authorization, Cache-Control") // So'rov sarlavhalari
+		c.Header("Access-Control-Allow-Origin", "*")                                                                                                      
+		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH, DELETE, HEAD")                                                          
+		c.Header("Access-Control-Allow-Headers", "Platform-Id, Content-Type, Content-Length, Accept-Encoding, X-CSF-TOKEN, Authorization, Cache-Control")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)

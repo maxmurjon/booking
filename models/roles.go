@@ -1,24 +1,21 @@
 package models
 
 type PrimaryKey struct {
-	Id int `json:"id"`
+	Id string `json:"id"`
 }
 
 type Role struct {
 	Id          string `json:"id"`
-	RoleName    string `json:"name"`
-	Description string `json:"description"`
+	Name    string `json:"name"`
 }
 
 type CreateRole struct {
-	RoleName    string `json:"name"`
-	Description string `json:"description"`
+	Name    string `json:"name"`
 }
 
 type UpdateRole struct {
 	Id          string `json:"id"`
-	RoleName    string `json:"name"`
-	Description string `json:"description"`
+	Name    string `json:"name"`
 }
 
 type GetListRoleRequest struct {

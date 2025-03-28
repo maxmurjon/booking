@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"comics/models"
+	"booking/models"
 	"context"
 	"net/http"
 
@@ -83,7 +83,7 @@ func (h *Handler) GetUsersList(c *gin.Context) {
 func (h *Handler) GetUsersByIDHandler(c *gin.Context) {
 	id := c.Param("id")
 
-	user, err := h.strg.User().GetByID(context.Background(), &models.UserPrimaryKey{Id: id})
+	user, err := h.strg.User().GetByID(context.Background(), &models.UserPrimaryKey{Id: &id})
 	if err != nil {
 		c.JSON(http.StatusNotFound, models.DefaultError{
 			Message: "User not found: " + err.Error(),
@@ -100,7 +100,7 @@ func (h *Handler) GetUsersByIDHandler(c *gin.Context) {
 func (h *Handler) DeleteUser(c *gin.Context) {
 	id := c.Param("id")
 
-	deletedUser, err := h.strg.User().Delete(context.Background(), &models.UserPrimaryKey{Id: id})
+	deletedUser, err := h.strg.User().Delete(context.Background(), &models.UserPrimaryKey{Id: &id})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.DefaultError{
 			Message: "Failed to delete user: " + err.Error(),

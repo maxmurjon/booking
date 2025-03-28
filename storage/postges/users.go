@@ -1,8 +1,8 @@
 package postgres
 
 import (
-	"comics/models"
-	"comics/pkg/helper/helper"
+	"booking/models"
+	"booking/pkg/helper/helper"
 	"context"
 	"fmt"
 
@@ -25,22 +25,27 @@ func (u *userRepo) Create(ctx context.Context, req *models.CreateUser) (*models.
 		id,
 		first_name,
 		last_name,
+		username,
+		email,
 		password_hash,
-		phone_number,
+		role_id,
 		created_at,
 		updated_at 
-	) VALUES ($1, $2, $3, $4, $5, now(), now())`
+	) VALUES ($1, $2, $3, $4, $5, $6, $7, now(), now())`
 
 	_, err = u.db.Exec(ctx, query,
 		uuid.String(),
 		req.FirstName,
 		req.LastName,
+		req.UserName,
+		req.Email,
 		req.Password,
-		req.PhoneNumber,
+		req.RoleId,
 	)
 
+	id := uuid.String()
 	pKey := &models.UserPrimaryKey{
-		Id: uuid.String(),
+		Id: &id,
 	}
 
 	return pKey, err
@@ -49,29 +54,31 @@ func (u *userRepo) Create(ctx context.Context, req *models.CreateUser) (*models.
 func (u *userRepo) GetByID(ctx context.Context, req *models.UserPrimaryKey) (*models.User, error) {
 	res := &models.User{}
 	query := `
-        SELECT
-            id,
-            first_name,
-            last_name,
-            password_hash,
-            phone_number,
-			image_url,
-            created_at,
-            updated_at
-        FROM
-            "users"
-        WHERE
-            id = $1`
+		SELECT
+			id,
+			first_name,
+			last_name,
+			username,
+			email,
+			password_hash,
+			role_id,
+			created_at,
+			updated_at
+		FROM
+			"users"
+		WHERE
+			id = $1`
 
 	err := u.db.QueryRow(ctx, query, req.Id).Scan(
 		&res.Id,
 		&res.FirstName,
 		&res.LastName,
+		&res.UserName,
+		&res.Email,
 		&res.Password,
-		&res.PhoneNumber,
-		&res.ImageUrl,
-		&res.CreatedAt, // created_at as time.Time
-		&res.UpdatedAt, // updated_at as time.Time
+		&res.RoleId,
+		&res.CreatedAt,
+		&res.UpdatedAt,
 	)
 	if err != nil {
 		return res, err
@@ -88,9 +95,10 @@ func (u *userRepo) GetList(ctx context.Context, req *models.GetListUserRequest) 
 		id,
 		first_name,
 		last_name,
+		username,
+		email,
 		password_hash,
-		phone_number,
-		image_url,
+		role_id,
 		created_at,
 		updated_at
 	FROM
@@ -103,7 +111,7 @@ func (u *userRepo) GetList(ctx context.Context, req *models.GetListUserRequest) 
 
 	if len(req.Search) > 0 {
 		params["search"] = req.Search
-		filter += " AND ((name || phone || is_active || login) ILIKE ('%' || :search || '%'))"
+		filter += " AND ((first_name || last_name || username || email) ILIKE ('%' || :search || '%'))"
 	}
 
 	if req.Offset > 0 {
@@ -137,14 +145,14 @@ func (u *userRepo) GetList(ctx context.Context, req *models.GetListUserRequest) 
 	for rows.Next() {
 		obj := &models.User{}
 
-		// Ensure ImageUrl is handled as a pointer to string
 		err = rows.Scan(
 			&obj.Id,
 			&obj.FirstName,
 			&obj.LastName,
+			&obj.UserName,
+			&obj.Email,
 			&obj.Password,
-			&obj.PhoneNumber,
-			&obj.ImageUrl,
+			&obj.RoleId,
 			&obj.CreatedAt,
 			&obj.UpdatedAt,
 		)
@@ -160,12 +168,10 @@ func (u *userRepo) GetList(ctx context.Context, req *models.GetListUserRequest) 
 }
 
 func (u *userRepo) Update(ctx context.Context, req *models.UpdateUser) (int64, error) {
-	// So'rovni qurishni boshlash
 	query := `UPDATE "users" SET `
 	params := []interface{}{}
 	counter := 1
 
-	// So'rovga maydonlarni qo'shish
 	updated := false
 
 	if req.FirstName != nil {
@@ -182,6 +188,20 @@ func (u *userRepo) Update(ctx context.Context, req *models.UpdateUser) (int64, e
 		updated = true
 	}
 
+	if req.UserName != nil {
+		query += `username = $` + fmt.Sprint(counter) + `, `
+		params = append(params, *req.UserName)
+		counter++
+		updated = true
+	}
+
+	if req.Email != nil {
+		query += `email = $` + fmt.Sprint(counter) + `, `
+		params = append(params, *req.Email)
+		counter++
+		updated = true
+	}
+
 	if req.Password != nil {
 		query += `password_hash = $` + fmt.Sprint(counter) + `, `
 		params = append(params, *req.Password)
@@ -189,42 +209,28 @@ func (u *userRepo) Update(ctx context.Context, req *models.UpdateUser) (int64, e
 		updated = true
 	}
 
-	if req.ImageUrl != nil {
-		query += `image_url = $` + fmt.Sprint(counter) + `, `
-		params = append(params, *req.ImageUrl)
+	if req.RoleId != nil {
+		query += `role_id = $` + fmt.Sprint(counter) + `, `
+		params = append(params, *req.RoleId)
 		counter++
 		updated = true
 	}
 
-	if req.PhoneNumber != nil {
-		query += `phone_number = $` + fmt.Sprint(counter) + `, `
-		params = append(params, *req.PhoneNumber)
-		counter++
-		updated = true
-	}
-
-	// Agar hech qanday maydon yangilanmagan bo'lsa, xato qaytarish
 	if !updated {
-		return 0, fmt.Errorf("yangilanish uchun hech qanday maydon kiritilmagan")
+		return 0, fmt.Errorf("no fields to update")
 	}
 
-	// Oxirgi vergulani olib tashlash va `updated_at` maydonini qo'shish
 	query = query[:len(query)-2] + `, updated_at = now()`
-
-	// WHERE shartini qo'shish
 	query += ` WHERE id = $` + fmt.Sprint(counter)
 	params = append(params, req.Id)
 
-	// So'rovni bajarish
 	result, err := u.db.Exec(ctx, query, params...)
 	if err != nil {
 		return 0, err
 	}
 
-	// Qatorlar sonini olish
 	rowsAffected := result.RowsAffected()
 
-	// Qaytarish
 	return rowsAffected, nil
 }
 
@@ -241,30 +247,34 @@ func (u *userRepo) Delete(ctx context.Context, req *models.UserPrimaryKey) (id i
 	return rowsAffected, err
 }
 
-func (u *userRepo) GetByPhone(ctx context.Context, login *models.Login) (*models.User, error) {
+func (u *userRepo) GetByUserName(ctx context.Context, login *models.Login) (*models.User, error) {
 	res := &models.User{}
 	query := `
-        SELECT
-            id,
-            first_name,
-            last_name,
-            password_hash,
-            phone_number,
-            created_at,
-            updated_at
-        FROM
-            "users"
-        WHERE
-            phone_number = $1`
+		SELECT
+			id,
+			first_name,
+			last_name,
+			username,
+			email,
+			password_hash,
+			role_id,
+			created_at,
+			updated_at
+		FROM
+			"users"
+		WHERE
+			username = $1`
 
-	err := u.db.QueryRow(ctx, query, login.PhoneNumber).Scan(
+	err := u.db.QueryRow(ctx, query, login.UserName).Scan(
 		&res.Id,
 		&res.FirstName,
 		&res.LastName,
+		&res.UserName,
+		&res.Email,
 		&res.Password,
-		&res.PhoneNumber,
-		&res.CreatedAt, // created_at as time.Time
-		&res.UpdatedAt, // updated_at as time.Time
+		&res.RoleId,
+		&res.CreatedAt,
+		&res.UpdatedAt,
 	)
 	if err != nil {
 		return res, err

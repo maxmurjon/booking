@@ -1,12 +1,12 @@
 package main
 
 import (
-	"comics/api"
-	"comics/api/handler"
-	"comics/config"
+	"booking/api"
+	"booking/api/handler"
+	"booking/config"
 	"fmt"
 
-	postgres "comics/storage/postges"
+	postgres "booking/storage/postges"
 
 	"github.com/gin-gonic/gin"
 )

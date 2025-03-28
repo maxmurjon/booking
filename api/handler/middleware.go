@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"comics/pkg/helper/helper"
+	"booking/pkg/helper/helper"
 	"fmt"
 	"net/http"
 

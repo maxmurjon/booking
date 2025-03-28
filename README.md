@@ -1,2 +1,2 @@
-# comicss
+# bookings
 # booking

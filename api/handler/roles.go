@@ -1,11 +1,10 @@
 package handler
 
 import (
-	"comics/models"
+	"booking/models"
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -85,15 +84,9 @@ func (h *Handler) GetRolesList(c *gin.Context) {
 
 func (h *Handler) GetRolesByIDHandler(c *gin.Context) {
 	id := c.Param("id")
-	intId,err:=strconv.Atoi(id)
-	if err!=nil{
-		c.JSON(http.StatusNotFound, models.DefaultError{
-			Message: "Role not found: " + err.Error(),
-		})
-		return
-	}
+
 	// Get the Role by ID
-	role, err := h.strg.Role().GetByID(context.Background(), &models.PrimaryKey{Id: intId})
+	role, err := h.strg.Role().GetByID(context.Background(), &models.PrimaryKey{Id: id})
 	if err != nil {
 		c.JSON(http.StatusNotFound, models.DefaultError{
 			Message: "Role not found: " + err.Error(),
@@ -110,15 +103,8 @@ func (h *Handler) GetRolesByIDHandler(c *gin.Context) {
 func (h *Handler) DeleteRole(c *gin.Context) {
 	id := c.Param("id")
 
-	intId,err:=strconv.Atoi(id)
-	if err!=nil{
-		c.JSON(http.StatusNotFound, models.DefaultError{
-			Message: "Role not found: " + err.Error(),
-		})
-		return
-	}
 	// Delete the Role by ID
-	deletedRole, err := h.strg.Role().Delete(context.Background(), &models.PrimaryKey{Id: intId})
+	deletedRole, err := h.strg.Role().Delete(context.Background(), &models.PrimaryKey{Id: id})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.DefaultError{
 			Message: "Failed to delete Role: " + err.Error(),

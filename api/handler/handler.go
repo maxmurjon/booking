@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"comics/config"
-	"comics/storage"
+	"booking/config"
+	"booking/storage"
 )
 
 type Handler struct {
