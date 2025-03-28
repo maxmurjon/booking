@@ -27,6 +27,7 @@ func (h *Handler) CreateDoctor(c *gin.Context) {
 		return
 	}
 
+	
 	role, err := h.strg.Role().GetByName(context.Background(), &models.Role{Name: "doctor"})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.DefaultError{
