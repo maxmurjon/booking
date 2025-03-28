@@ -1,29 +1,36 @@
-# === Builder stage ===
-FROM golang:1.22-alpine AS builder
+# 1. Builder stage
+FROM golang:1.23-alpine AS builder
 
-# Ishchi katalogni yaratish
+# Muhitni sozlash
 WORKDIR /app
+
+# Go va kerakli paketlarni o‘rnatish
+RUN apk add --no-cache git
 
 # Go mod fayllarni nusxalash va bog‘liqliklarni yuklash
 COPY go.mod go.sum ./
 RUN go mod tidy
 
-# Hamma fayllarni nusxalash
+# Swagger CLI ni o‘rnatish
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
+# Hamma loyihani nusxalash
 COPY . .
 
-# `swag` ni o‘rnatish va Swagger hujjatlarini yaratish
-RUN go install github.com/swaggo/swag/cmd/swag@latest \
-    && /go/bin/swag init -g cmd/main.go
+# Swagger hujjatlarini yaratish
+RUN swag init -g cmd/main.go
 
-# Ilovani qurish
+# Ilovani build qilish
 RUN go build -o main cmd/main.go
 
-# === Minimal image (alpine) ===
+---
+
+# 2. Final stage
 FROM alpine:3.16
 
 WORKDIR /app
 
-# Qurilgan ilovani va kerakli fayllarni nusxalash
+# Qurilgan Go ilovasini nusxalash
 COPY --from=builder /app/main .  # Asosiy Go dastur
 COPY --from=builder /app/config .  # Konfiguratsiya fayllari
 COPY --from=builder /app/api/docs ./api/docs  # Swagger hujjatlari
