@@ -17,13 +17,11 @@ RUN go install github.com/swaggo/swag/cmd/swag@latest
 # Hamma loyihani nusxalash
 COPY . .
 
-# Swagger hujjatlarini yaratish
+# Swagger hujjatlarini generatsiya qilish
 RUN swag init -g cmd/main.go
 
 # Ilovani build qilish
 RUN go build -o main cmd/main.go
-
----
 
 # 2. Final stage
 FROM alpine:3.16
