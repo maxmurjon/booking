@@ -14,6 +14,7 @@ type Store struct {
 	role   storage.RoleRepoI
 	user   storage.UserRepoI
 	doctor storage.DoctorRepoI
+	appointment storage.AppointmentRepo
 }
 
 func NewPostgres(psqlConnString string) storage.StorageRepoI {
@@ -61,4 +62,14 @@ func (s *Store) Doctor() storage.DoctorRepoI {
 		}
 	}
 	return s.doctor
+}
+
+
+func (s *Store) Appointment() storage.AppointmentRepo {
+	if s.appointment == nil {
+		s.appointment = &appointmentRepo{
+			db: s.db,
+		}
+	}
+	return s.appointment
 }

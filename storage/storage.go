@@ -9,6 +9,7 @@ type StorageRepoI interface {
 	User() UserRepoI
 	Role() RoleRepoI
 	Doctor() DoctorRepoI
+	Appointment() AppointmentRepo
 	CloseDB()
 }
 
@@ -37,4 +38,12 @@ type DoctorRepoI interface {
 	GetList(ctx context.Context, req *models.GetListDoctorRequest) (*models.GetListDoctorResponse, error)
 	Update(ctx context.Context, req *models.UpdateDoctor) (int64, error)
 	Delete(ctx context.Context, id string) (int64, error)
+}
+
+type AppointmentRepo interface {
+	Create(ctx context.Context, req *models.CreateAppointment) (*models.Appointment, error)
+	GetByID(ctx context.Context, id int) (*models.Appointment, error)
+	GetList(ctx context.Context, req *models.GetListAppointmentRequest) (*models.GetListAppointmentResponse, error)
+	Update(ctx context.Context, req *models.UpdateAppointment) error
+	Delete(ctx context.Context, id int) error
 }

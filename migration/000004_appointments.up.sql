@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS appointments (
     appointment_time TIME NOT NULL,
     status VARCHAR(20) CHECK (status IN ('pending', 'confirmed', 'cancelled')) DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT NOW(),
-    UNIQUE (doctor_id, appointment_date, appointment_time) -- Bir vaqtga bir nechta bemor yozilishining oldini olish
+    UNIQUE (doctor_id, appointment_date, appointment_time)
 );
