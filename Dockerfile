@@ -4,7 +4,7 @@ FROM golang:1.23-alpine AS builder
 # Muhitni sozlash
 WORKDIR /app
 
-# Go va kerakli paketlarni o‘rnatish
+# Kerakli paketlarni o‘rnatish
 RUN apk add --no-cache git ca-certificates
 
 # Go mod fayllarni nusxalash va bog‘liqliklarni yuklash
@@ -33,8 +33,8 @@ RUN apk add --no-cache ca-certificates
 
 # Qurilgan Go ilovasini nusxalash
 COPY --from=builder /app/main .  # Asosiy Go dastur
-COPY --from=builder /app/config .  # Konfiguratsiya fayllari
-COPY --from=builder /app/docs ./api/docs
+COPY --from=builder /app/config ./config  # Konfiguratsiya fayllari
+COPY --from=builder /app/docs ./docs  # Swagger hujjatlari
 
 # `.env` fayl yo‘qligi sababli konfiguratsiyani muhit o‘zgaruvchilari orqali sozlash
 ENV DOT_ENV_PATH=config/.env
