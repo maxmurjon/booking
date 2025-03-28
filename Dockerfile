@@ -1,31 +1,29 @@
 # Builder stage
-FROM golang:1.23.0-alpine AS builder
+FROM golang:1.22-alpine AS builder
 
+# Ilova uchun ishchi katalog yaratish
+RUN mkdir /app
+
+# Hamma fayllarni nusxalash
+COPY . /app
+
+# Ishchi katalogni sozlash
 WORKDIR /app
-
-ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
-
-# Faqat kerakli fayllarni nusxalash
-COPY go.mod go.sum ./
-RUN go mod download
-
-COPY . .
 
 # Ilovani qurish
 RUN go build -o main cmd/main.go
 
-# Minimal tasvir yaratish
-FROM alpine:latest
+# Minimal tasvir (alpine) yaratish
+FROM alpine:3.16
 
 WORKDIR /app
 
-# Kerakli fayllarni nusxalash
-COPY --from=builder /app/main .
-COPY --from=builder /app/config/.env config/.env
+# Qurilgan ilovani nusxalash
+COPY --from=builder /app/main .  # Faqat kerakli fayllarni olib kelish
+COPY --from=builder /app/api/docs ./api/docs  # Swagger fayllarini qo‘shish
 
-COPY --from=builder /app/api/docs/swagger.json /app/api/docs/swagger.json
-COPY --from=builder /app/api/docs/swagger.yaml /app/api/docs/swagger.yaml
-
+# Konfiguratsiya fayli o'zgaruvchisi
+ENV DOT_ENV_PATH=config/.env
 
 # Ilovani ishga tushirish
 CMD ["/app/main"]
