@@ -1,29 +1,22 @@
-# Builder stage
-FROM golang:1.23-alpine AS builder
-
-# Ishchi katalogni sozlash
+# 1. Builder stage
+FROM golang:1.22-alpine AS builder  # 1.23 emas
 WORKDIR /app
-
-# Muhit o‘zgaruvchilarini sozlash
-ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
-
-# Faqat kerakli fayllarni nusxalash
 COPY go.mod go.sum ./
 RUN go mod download
-
 COPY . .
 
-# Ilovani qurish
-RUN go build -o main cmd/main.go
+# Swagger generatsiya qilish
+RUN go install github.com/swaggo/swag/cmd/swag@latest && \
+    swag init -g cmd/main.go -o docs
 
-# Minimal tasvir yaratish
-FROM alpine:latest
+# Statik binary qurish
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags '-w -s' -o main cmd/main.go
 
+# 2. Final stage
+FROM alpine:3.19  # Versiyani belgilang
 WORKDIR /app
-
-# Kerakli fayllarni nusxalash
 COPY --from=builder /app/main .
-COPY --from=builder /app/config/.env config/.env
-
-# Ilovani ishga tushirish
+COPY --from=builder /app/config ./config
+COPY --from=builder /app/docs ./docs
+ENV DOT_ENV_PATH=/app/config/.env
 CMD ["/app/main"]

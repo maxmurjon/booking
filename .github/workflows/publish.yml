@@ -38,19 +38,18 @@ jobs:
       - name: Deploy Docker image to Contabo server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ env.SERVER_HOST }}
-          username: ${{ env.SERVER_USERNAME }}
-          key: ${{ env.SSH_PRIVATE_KEY }}
           script: |
-            # Docker konteynerini to'xtatish va o'chirish
+            # Yangi imagenI tortib olish
+            docker pull ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+            
+            # Eski konteynerni to'xtatish
             docker stop ${{ env.DOCKER_IMAGE_NAME }} || true
             docker rm ${{ env.DOCKER_IMAGE_NAME }} || true
-            docker image rm ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} || true
+            
             # Yangi konteynerni ishga tushurish
             docker run -d \
               --name ${{ env.DOCKER_IMAGE_NAME }} \
-              -e POSTGRES_HOST=${{ env.DATABASE_HOST }} \
-              -e POSTGRES_USER=${{ env.DATABASE_USER }} \
-              -e POSTGRES_PASSWORD=${{ env.DATABASE_PASSWORD }} \
               -p 8080:8080 \
+              -v /path/to/.env:/app/config/.env \  # .env faylni mount qilish
+              -e POSTGRES_HOST=${{ env.DATABASE_HOST }} \
               ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
