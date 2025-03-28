@@ -17,8 +17,7 @@ RUN go install github.com/swaggo/swag/cmd/swag@v1.16.2
 COPY . .
 
 # Swagger hujjatlarini generatsiya qilish
-RUN mkdir -p /app/docs
-RUN swag init -g cmd/main.go -o /app/docs
+RUN swag init -g cmd/main.go -o /app/api/docs
 
 # Go ilovasini build qilish
 RUN go build -o main cmd/main.go
@@ -34,7 +33,7 @@ RUN apk add --no-cache ca-certificates
 # Qurilgan Go ilovasini nusxalash
 COPY --from=builder /app/main .  # Asosiy Go dastur
 COPY --from=builder /app/config ./config  # Konfiguratsiya fayllari
-COPY --from=builder /app/docs ./docs  # Swagger hujjatlari
+COPY --from=builder /app/api/docs ./docs  # Swagger hujjatlari
 
 # Muhit o‘zgaruvchisini sozlash
 ENV DOT_ENV_PATH=config/.env
