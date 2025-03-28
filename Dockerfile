@@ -1,38 +1,32 @@
 # 1. Builder stage
-FROM golang:1.23-alpine AS builder
+FROM golang:1.22-alpine AS builder  # 1.23 emas, 1.22 yoki 1.21
 
 WORKDIR /app
 
-# Kerakli kutubxonalarni o‘rnatish
 RUN apk add --no-cache git ca-certificates
 
-# Go mod fayllarni yuklash
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Loyihani nusxalash
 COPY . .
 
-# Swagger hujjatlarini yaratish (Agar kerak bo‘lsa)
-RUN go install github.com/swaggo/swag/cmd/swag@latest && swag init -g cmd/main.go -o api/docs
+# Swagger docs manzilini to'g'rilash
+RUN go install github.com/swaggo/swag/cmd/swag@latest && \
+    swag init -g cmd/main.go -o docs  # api/docs emas, direktoriyani soddalashtirish
 
-# Go ilovasini build qilish
-RUN go build -o main cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o main cmd/main.go  # CGO ni o'chirish
 
 # 2. Final stage
-FROM alpine:3.16
+FROM alpine:3.19  # Yangi versiya
 
 WORKDIR /app
 
-# Kerakli kutubxonalarni o‘rnatish
 RUN apk add --no-cache ca-certificates
 
-# Qurilgan Go ilovasini nusxalash
-COPY --from=builder /app/main .  # Asosiy Go dastur
-COPY --from=builder /app/config ./config  # Konfiguratsiya fayllari
-COPY --from=builder /app/api/docs ./docs  # Swagger hujjatlari
+COPY --from=builder /app/main .
+COPY --from=builder /app/config ./config
+COPY --from=builder /app/docs ./docs  # To'g'ri manzil
 
-# Muhit o‘zgaruvchisini sozlash
 ENV DOT_ENV_PATH=config/.env
 
 CMD ["/app/main"]
