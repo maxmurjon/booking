@@ -9,6 +9,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateRole godoc
+// @Summary Create a new role
+// @Description Create a new role with given details
+// @Tags roles
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param role body models.CreateRole true "Role data"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.DefaultError
+// @Failure 500 {object} models.DefaultError
+// @Router /roles [post]
 func (h *Handler) CreateRole(c *gin.Context) {
 	var entity *models.CreateRole
 	if err := c.BindJSON(&entity); err != nil {
@@ -42,6 +54,18 @@ func (h *Handler) CreateRole(c *gin.Context) {
 	})
 }
 
+// UpdateRole godoc
+// @Summary Update an existing role
+// @Description Update role details
+// @Tags roles
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param role body models.UpdateRole true "Updated role data"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.DefaultError
+// @Failure 500 {object} models.DefaultError
+// @Router /roles [put]
 func (h *Handler) UpdateRole(c *gin.Context) {
 	var entity models.UpdateRole
 	if err := c.BindJSON(&entity); err != nil {
@@ -66,6 +90,15 @@ func (h *Handler) UpdateRole(c *gin.Context) {
 	})
 }
 
+// GetRolesList godoc
+// @Summary Get list of roles
+// @Description Retrieve all roles
+// @Tags roles
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 {object} models.GetListRoleResponse
+// @Failure 500 {object} models.DefaultError
+// @Router /roles [get]
 func (h *Handler) GetRolesList(c *gin.Context) {
 	resp, err := h.strg.Role().GetList(context.Background(), &models.GetListRoleRequest{})
 	if err != nil {
@@ -78,6 +111,16 @@ func (h *Handler) GetRolesList(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// GetRolesByIDHandler godoc
+// @Summary Get role by ID
+// @Description Retrieve a role using ID
+// @Tags roles
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "Role ID"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 404 {object} models.DefaultError
+// @Router /roles/{id} [get]
 func (h *Handler) GetRolesByIDHandler(c *gin.Context) {
 	id := c.Param("id")
 
@@ -95,6 +138,15 @@ func (h *Handler) GetRolesByIDHandler(c *gin.Context) {
 	})
 }
 
+// DeleteRole godoc
+// @Summary Delete role by ID
+// @Description Delete a role using ID
+// @Tags roles
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "Role ID"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 500 {object} models.DefaultError
+// @Router /roles/{id} [delete]
 func (h *Handler) DeleteRole(c *gin.Context) {
 	id := c.Param("id")
 

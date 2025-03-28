@@ -12,6 +12,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateAppointment godoc
+// @Summary Create an appointment
+// @Description Create a new appointment with doctor availability check
+// @Tags Appointments
+// @Accept json
+// @Produce json
+// @Param appointment body models.CreateAppointment true "Appointment details"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.DefaultError
+// @Failure 500 {object} models.DefaultError
+// @Router /appointments [post]
 func (h *Handler) CreateAppointment(c *gin.Context) {
 	var entity models.CreateAppointment
 	if err := c.BindJSON(&entity); err != nil {
@@ -92,6 +103,17 @@ func (h *Handler) CreateAppointment(c *gin.Context) {
 	})
 }
 
+// UpdateAppointment godoc
+// @Summary Update an appointment
+// @Description Update appointment details
+// @Tags Appointments
+// @Accept json
+// @Produce json
+// @Param appointment body models.UpdateAppointment true "Updated appointment details"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.DefaultError
+// @Failure 500 {object} models.DefaultError
+// @Router /appointments [put]
 func (h *Handler) UpdateAppointment(c *gin.Context) {
 	var entity models.UpdateAppointment
 	if err := c.BindJSON(&entity); err != nil {
@@ -121,6 +143,14 @@ func (h *Handler) UpdateAppointment(c *gin.Context) {
 	})
 }
 
+// GetAppointmentsList godoc
+// @Summary Get list of appointments
+// @Description Retrieve a list of all appointments
+// @Tags Appointments
+// @Produce json
+// @Success 200 {object} []models.Appointment
+// @Failure 500 {object} models.DefaultError
+// @Router /appointments [get]
 func (h *Handler) GetAppointmentsList(c *gin.Context) {
 	resp, err := h.strg.Appointment().GetList(context.Background(), &models.GetListAppointmentRequest{})
 	if err != nil {
@@ -133,6 +163,16 @@ func (h *Handler) GetAppointmentsList(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// GetAppointmentsByIDHandler godoc
+// @Summary Get appointment by ID
+// @Description Retrieve an appointment by its ID
+// @Tags Appointments
+// @Produce json
+// @Param id path int true "Appointment ID"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.DefaultError
+// @Failure 404 {object} models.DefaultError
+// @Router /appointments/{id} [get]
 func (h *Handler) GetAppointmentsByIDHandler(c *gin.Context) {
 	id := c.Param("id")
 	intId, err := strconv.Atoi(id)
@@ -157,6 +197,16 @@ func (h *Handler) GetAppointmentsByIDHandler(c *gin.Context) {
 	})
 }
 
+// DeleteAppointment godoc
+// @Summary Delete an appointment
+// @Description Remove an appointment by its ID
+// @Tags Appointments
+// @Produce json
+// @Param id path int true "Appointment ID"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.DefaultError
+// @Failure 500 {object} models.DefaultError
+// @Router /appointments/{id} [delete]
 func (h *Handler) DeleteAppointment(c *gin.Context) {
 	id := c.Param("id")
 	intId, err := strconv.Atoi(id)

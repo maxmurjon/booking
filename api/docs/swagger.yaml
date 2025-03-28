@@ -1,30 +1,61 @@
 definitions:
-  models.Course:
+  models.Appointment:
     properties:
+      appointment_date:
+        type: string
+      appointment_time:
+        type: string
       created_at:
         type: string
-      description:
+      doctor_id:
         type: string
       id:
         type: integer
-      price_no_tutor:
-        type: number
-      price_tutor:
-        type: number
-      title:
+      patient_id:
         type: string
-      updated_at:
+      status:
         type: string
     type: object
-  models.CreateCourse:
+  models.CreateAppointment:
     properties:
-      description:
+      appointment_date:
         type: string
-      price_no_tutor:
-        type: number
-      price_tutor:
-        type: number
-      title:
+      appointment_time:
+        type: string
+      doctor_id:
+        type: string
+      patient_id:
+        type: string
+    type: object
+  models.CreateDoctor:
+    properties:
+      specialty:
+        type: string
+      user_id:
+        type: string
+      work_end:
+        type: string
+      work_start:
+        type: string
+    type: object
+  models.CreateRole:
+    properties:
+      name:
+        type: string
+    type: object
+  models.CreateUser:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+      role_id:
+        type: string
+      user_name:
         type: string
     type: object
   models.DefaultError:
@@ -32,14 +63,68 @@ definitions:
       message:
         type: string
     type: object
-  models.GetListCourseResponse:
+  models.Doctor:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      specialty:
+        type: string
+      user_id:
+        type: string
+      work_end:
+        type: string
+      work_start:
+        type: string
+    type: object
+  models.GetListDoctorResponse:
     properties:
       count:
         type: integer
-      courses:
+      doctors:
         items:
-          $ref: '#/definitions/models.Course'
+          $ref: '#/definitions/models.Doctor'
         type: array
+    type: object
+  models.GetListRoleResponse:
+    properties:
+      count:
+        type: integer
+      roles:
+        items:
+          $ref: '#/definitions/models.Role'
+        type: array
+    type: object
+  models.GetListUserResponse:
+    properties:
+      count:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+  models.Login:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  models.LoginResponse:
+    properties:
+      token:
+        type: string
+      user_data:
+        $ref: '#/definitions/models.User'
+    type: object
+  models.Role:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
     type: object
   models.SuccessResponse:
     properties:
@@ -47,52 +132,112 @@ definitions:
       message:
         type: string
     type: object
-  models.UpdateCourse:
+  models.UpdateAppointment:
     properties:
-      description:
+      appointment_date:
+        type: string
+      appointment_time:
+        type: string
+      doctor_id:
         type: string
       id:
         type: integer
-      price_no_tutor:
-        type: number
-      price_tutor:
-        type: number
-      title:
+      patient_id:
+        type: string
+      status:
+        type: string
+    type: object
+  models.UpdateDoctor:
+    properties:
+      id:
+        type: string
+      specialty:
+        type: string
+      user_id:
+        type: string
+      work_end:
+        type: string
+      work_start:
+        type: string
+    type: object
+  models.UpdateRole:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.UpdateUser:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+      role_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+      role_id:
+        type: string
+      updated_at:
+        type: string
+      user_name:
         type: string
     type: object
 info:
   contact: {}
 paths:
-  /courses:
+  /appointments:
     get:
-      consumes:
-      - application/json
-      description: Get list of courses
+      description: Retrieve a list of all appointments
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.GetListCourseResponse'
+            items:
+              $ref: '#/definitions/models.Appointment'
+            type: array
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.DefaultError'
-      summary: Get list of courses
+      summary: Get list of appointments
       tags:
-      - courses
+      - Appointments
     post:
       consumes:
       - application/json
-      description: Create a new course with the input payload
+      description: Create a new appointment with doctor availability check
       parameters:
-      - description: Create Course
+      - description: Appointment details
         in: body
-        name: course
+        name: appointment
         required: true
         schema:
-          $ref: '#/definitions/models.CreateCourse'
+          $ref: '#/definitions/models.CreateAppointment'
       produces:
       - application/json
       responses:
@@ -108,16 +253,43 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.DefaultError'
-      summary: Create a new course
+      summary: Create an appointment
       tags:
-      - courses
-  /courses/{id}:
-    delete:
+      - Appointments
+    put:
       consumes:
       - application/json
-      description: Delete a course by ID
+      description: Update appointment details
       parameters:
-      - description: Course ID
+      - description: Updated appointment details
+        in: body
+        name: appointment
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAppointment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Update an appointment
+      tags:
+      - Appointments
+  /appointments/{id}:
+    delete:
+      description: Remove an appointment by its ID
+      parameters:
+      - description: Appointment ID
         in: path
         name: id
         required: true
@@ -137,15 +309,13 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.DefaultError'
-      summary: Delete a course by ID
+      summary: Delete an appointment
       tags:
-      - courses
+      - Appointments
     get:
-      consumes:
-      - application/json
-      description: Get a course by ID
+      description: Retrieve an appointment by its ID
       parameters:
-      - description: Course ID
+      - description: Appointment ID
         in: path
         name: id
         required: true
@@ -165,25 +335,26 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.DefaultError'
-      summary: Get a course by ID
+      summary: Get appointment by ID
       tags:
-      - courses
-    put:
+      - Appointments
+  /createuser:
+    post:
       consumes:
       - application/json
-      description: Update an existing course with the input payload
+      description: This endpoint creates a new user
       parameters:
-      - description: Course ID
-        in: path
-        name: id
+      - description: Authorization
+        in: header
+        name: Authorization
         required: true
-        type: integer
-      - description: Update Course
+        type: string
+      - description: User data
         in: body
-        name: course
+        name: user
         required: true
         schema:
-          $ref: '#/definitions/models.UpdateCourse'
+          $ref: '#/definitions/models.CreateUser'
       produces:
       - application/json
       responses:
@@ -199,7 +370,457 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.DefaultError'
-      summary: Update an existing course
+      summary: Create a new user
       tags:
-      - courses
+      - Users
+  /deleteuser/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: This endpoint deletes a user by their ID
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Delete a user
+      tags:
+      - Users
+  /doctors:
+    get:
+      description: Retrieves a list of all doctors
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetListDoctorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Get a list of doctors
+      tags:
+      - doctors
+    post:
+      consumes:
+      - application/json
+      description: Assigns a user the "doctor" role and creates a doctor profile
+      parameters:
+      - description: Doctor Data
+        in: body
+        name: doctor
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateDoctor'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Create a new doctor
+      tags:
+      - doctors
+    put:
+      consumes:
+      - application/json
+      description: Updates details of an existing doctor
+      parameters:
+      - description: Doctor Data
+        in: body
+        name: doctor
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateDoctor'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Update doctor information
+      tags:
+      - doctors
+  /doctors/{id}:
+    delete:
+      description: Deletes a doctor by ID
+      parameters:
+      - description: Doctor ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Delete a doctor
+      tags:
+      - doctors
+    get:
+      description: Retrieves details of a specific doctor by ID
+      parameters:
+      - description: Doctor ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Get a doctor by ID
+      tags:
+      - doctors
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Foydalanuvchi login va parol orqali tizimga kiradi
+      parameters:
+      - description: Login ma'lumotlari
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Foydalanuvchini tizimga kiritish
+      tags:
+      - Authentication
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Yangi foydalanuvchini yaratadi
+      parameters:
+      - description: Ro‘yxatdan o‘tish ma'lumotlari
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Foydalanuvchini ro‘yxatdan o‘tkazish
+      tags:
+      - Authentication
+  /roles:
+    get:
+      description: Retrieve all roles
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetListRoleResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Get list of roles
+      tags:
+      - roles
+    post:
+      consumes:
+      - application/json
+      description: Create a new role with given details
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Role data
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateRole'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Create a new role
+      tags:
+      - roles
+    put:
+      consumes:
+      - application/json
+      description: Update role details
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Updated role data
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateRole'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Update an existing role
+      tags:
+      - roles
+  /roles/{id}:
+    delete:
+      description: Delete a role using ID
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Delete role by ID
+      tags:
+      - roles
+    get:
+      description: Retrieve a role using ID
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Get role by ID
+      tags:
+      - roles
+  /updateuser:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint updates user information
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Update an existing user
+      tags:
+      - Users
+  /user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint retrieves a user by their ID
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Get a user by ID
+      tags:
+      - Users
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint retrieves a list of users
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetListUserResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.DefaultError'
+      summary: Get a list of users
+      tags:
+      - Users
 swagger: "2.0"

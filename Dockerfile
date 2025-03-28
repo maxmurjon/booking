@@ -1,10 +1,8 @@
 # Builder stage
 FROM golang:1.23.0-alpine AS builder
 
-# Ishchi katalogni sozlash
 WORKDIR /app
 
-# Muhit o‘zgaruvchilarini sozlash
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
 # Faqat kerakli fayllarni nusxalash
@@ -24,6 +22,7 @@ WORKDIR /app
 # Kerakli fayllarni nusxalash
 COPY --from=builder /app/main .
 COPY --from=builder /app/config/.env config/.env
+COPY --from=builder /app/docs /app/docs  # Swagger fayllarini qo‘shish
 
 # Ilovani ishga tushirish
 CMD ["/app/main"]

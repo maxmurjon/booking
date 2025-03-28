@@ -8,6 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Create a new user
+// @Description This endpoint creates a new user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization"
+// @Param user body models.CreateUser true "User data"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.DefaultError
+// @Failure 500 {object} models.DefaultError
+// @Router /createuser [post]
 func (h *Handler) CreateUser(c *gin.Context) {
 	var entity *models.CreateUser
 	if err := c.BindJSON(&entity); err != nil {
@@ -39,6 +50,17 @@ func (h *Handler) CreateUser(c *gin.Context) {
 	})
 }
 
+// @Summary Update an existing user
+// @Description This endpoint updates user information
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization"
+// @Param user body models.UpdateUser true "User data"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.DefaultError
+// @Failure 500 {object} models.DefaultError
+// @Router /updateuser [put]
 func (h *Handler) UpdateUser(c *gin.Context) {
 	var entity models.UpdateUser
 	if err := c.BindJSON(&entity); err != nil {
@@ -68,6 +90,15 @@ func (h *Handler) UpdateUser(c *gin.Context) {
 	})
 }
 
+// @Summary Get a list of users
+// @Description This endpoint retrieves a list of users
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization"
+// @Success 200 {object} models.GetListUserResponse
+// @Failure 500 {object} models.DefaultError
+// @Router /users [get]
 func (h *Handler) GetUsersList(c *gin.Context) {
 	resp, err := h.strg.User().GetList(context.Background(), &models.GetListUserRequest{})
 	if err != nil {
@@ -80,6 +111,16 @@ func (h *Handler) GetUsersList(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// @Summary Get a user by ID
+// @Description This endpoint retrieves a user by their ID
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization"
+// @Param id path string true "User ID"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 404 {object} models.DefaultError
+// @Router /user/{id} [get]
 func (h *Handler) GetUsersByIDHandler(c *gin.Context) {
 	id := c.Param("id")
 
@@ -97,6 +138,17 @@ func (h *Handler) GetUsersByIDHandler(c *gin.Context) {
 	})
 }
 
+
+// @Summary Delete a user
+// @Description This endpoint deletes a user by their ID
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization"
+// @Param id path string true "User ID"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 500 {object} models.DefaultError
+// @Router /deleteuser/{id} [delete]
 func (h *Handler) DeleteUser(c *gin.Context) {
 	id := c.Param("id")
 

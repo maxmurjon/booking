@@ -13,6 +13,19 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+
+// Register godoc
+// @Summary Foydalanuvchini ro‘yxatdan o‘tkazish
+// @Description Yangi foydalanuvchini yaratadi
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body models.CreateUser true "Ro‘yxatdan o‘tish ma'lumotlari"
+// @Success 201 {object} models.User
+// @Failure 400 {object} models.DefaultError
+// @Failure 409 {object} models.DefaultError
+// @Failure 500 {object} models.DefaultError
+// @Router /register [post]
 func (h *Handler) Register(c *gin.Context) {
 	var createUser models.CreateUser
 
@@ -69,6 +82,19 @@ func (h *Handler) Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, user)
 }
 
+
+// Login godoc
+// @Summary Foydalanuvchini tizimga kiritish
+// @Description Foydalanuvchi login va parol orqali tizimga kiradi
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body models.Login true "Login ma'lumotlari"
+// @Success 200 {object} models.LoginResponse
+// @Failure 400 {object} models.DefaultError
+// @Failure 401 {object} models.DefaultError
+// @Failure 500 {object} models.DefaultError
+// @Router /login [post]
 func (h *Handler) Login(c *gin.Context) {
 	var login models.Login
 

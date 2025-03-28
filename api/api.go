@@ -7,16 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "booking/api/docs"
 )
 
 func SetUpAPI(r *gin.Engine, h handler.Handler, cfg config.Config) {
 	r.Use(customCORSMiddleware())
+	r.Static("/swagger", "./docs")
 
-	// Ochiq APIlar (Hamma foydalanishi mumkin)
+
 	r.POST("/register", h.Register)
 	r.POST("/login", h.Login)
 
-	// Yopiq APIlar (Foydalanuvchi autentifikatsiyadan o‘tishi kerak)
 	protected := r.Group("/")
 	protected.Use(h.AuthMiddleware())
 	{
@@ -35,7 +36,6 @@ func SetUpAPI(r *gin.Engine, h handler.Handler, cfg config.Config) {
 		protected.DELETE("/deleteappointment/:id", h.DeleteAppointment)
 	}
 
-	// Admin APIlar (Faqat admin foydalanishi mumkin)
 	admin := r.Group("/")
 	admin.Use(h.AuthMiddleware(), h.RoleMiddleware("admin", "doctor"))
 	{
@@ -54,9 +54,8 @@ func SetUpAPI(r *gin.Engine, h handler.Handler, cfg config.Config) {
 		admin.DELETE("/deletedoctor/:id", h.DeleteDoctor)
 	}
 
-	// Swagger
 	url := ginSwagger.URL("swagger/doc.json")
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))	
 }
 
 

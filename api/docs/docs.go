@@ -15,9 +15,36 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/courses": {
+        "/appointments": {
             "get": {
-                "description": "Get list of courses",
+                "description": "Retrieve a list of all appointments",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Appointments"
+                ],
+                "summary": "Get list of appointments",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Appointment"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update appointment details",
                 "consumes": [
                     "application/json"
                 ],
@@ -25,14 +52,31 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "courses"
+                    "Appointments"
                 ],
-                "summary": "Get list of courses",
+                "summary": "Update an appointment",
+                "parameters": [
+                    {
+                        "description": "Updated appointment details",
+                        "name": "appointment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateAppointment"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.GetListCourseResponse"
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
                         }
                     },
                     "500": {
@@ -44,7 +88,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new course with the input payload",
+                "description": "Create a new appointment with doctor availability check",
                 "consumes": [
                     "application/json"
                 ],
@@ -52,17 +96,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "courses"
+                    "Appointments"
                 ],
-                "summary": "Create a new course",
+                "summary": "Create an appointment",
                 "parameters": [
                     {
-                        "description": "Create Course",
-                        "name": "course",
+                        "description": "Appointment details",
+                        "name": "appointment",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateCourse"
+                            "$ref": "#/definitions/models.CreateAppointment"
                         }
                     }
                 ],
@@ -88,23 +132,20 @@ const docTemplate = `{
                 }
             }
         },
-        "/courses/{id}": {
+        "/appointments/{id}": {
             "get": {
-                "description": "Get a course by ID",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Retrieve an appointment by its ID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "courses"
+                    "Appointments"
                 ],
-                "summary": "Get a course by ID",
+                "summary": "Get appointment by ID",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Course ID",
+                        "description": "Appointment ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -131,8 +172,49 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
-                "description": "Update an existing course with the input payload",
+            "delete": {
+                "description": "Remove an appointment by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Appointments"
+                ],
+                "summary": "Delete an appointment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Appointment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            }
+        },
+        "/createuser": {
+            "post": {
+                "description": "This endpoint creates a new user",
                 "consumes": [
                     "application/json"
                 ],
@@ -140,24 +222,438 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "courses"
+                    "Users"
                 ],
-                "summary": "Update an existing course",
+                "summary": "Create a new user",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Course ID",
-                        "name": "id",
-                        "in": "path",
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     },
                     {
-                        "description": "Update Course",
-                        "name": "course",
+                        "description": "User data",
+                        "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateCourse"
+                            "$ref": "#/definitions/models.CreateUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            }
+        },
+        "/deleteuser/{id}": {
+            "delete": {
+                "description": "This endpoint deletes a user by their ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            }
+        },
+        "/doctors": {
+            "get": {
+                "description": "Retrieves a list of all doctors",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "doctors"
+                ],
+                "summary": "Get a list of doctors",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetListDoctorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates details of an existing doctor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "doctors"
+                ],
+                "summary": "Update doctor information",
+                "parameters": [
+                    {
+                        "description": "Doctor Data",
+                        "name": "doctor",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateDoctor"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Assigns a user the \"doctor\" role and creates a doctor profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "doctors"
+                ],
+                "summary": "Create a new doctor",
+                "parameters": [
+                    {
+                        "description": "Doctor Data",
+                        "name": "doctor",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateDoctor"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            }
+        },
+        "/doctors/{id}": {
+            "get": {
+                "description": "Retrieves details of a specific doctor by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "doctors"
+                ],
+                "summary": "Get a doctor by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Doctor ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a doctor by ID",
+                "tags": [
+                    "doctors"
+                ],
+                "summary": "Delete a doctor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Doctor ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "Foydalanuvchi login va parol orqali tizimga kiradi",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Foydalanuvchini tizimga kiritish",
+                "parameters": [
+                    {
+                        "description": "Login ma'lumotlari",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "Yangi foydalanuvchini yaratadi",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Foydalanuvchini ro‘yxatdan o‘tkazish",
+                "parameters": [
+                    {
+                        "description": "Ro‘yxatdan o‘tish ma'lumotlari",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            }
+        },
+        "/roles": {
+            "get": {
+                "description": "Retrieve all roles",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Get list of roles",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetListRoleResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update role details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Update an existing role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated role data",
+                        "name": "role",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateRole"
                         }
                     }
                 ],
@@ -182,8 +678,8 @@ const docTemplate = `{
                     }
                 }
             },
-            "delete": {
-                "description": "Delete a course by ID",
+            "post": {
+                "description": "Create a new role with given details",
                 "consumes": [
                     "application/json"
                 ],
@@ -191,16 +687,25 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "courses"
+                    "roles"
                 ],
-                "summary": "Delete a course by ID",
+                "summary": "Create a new role",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Course ID",
-                        "name": "id",
-                        "in": "path",
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
+                    },
+                    {
+                        "description": "Role data",
+                        "name": "role",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateRole"
+                        }
                     }
                 ],
                 "responses": {
@@ -224,48 +729,311 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/roles/{id}": {
+            "get": {
+                "description": "Retrieve a role using ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Get role by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Role ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a role using ID",
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Delete role by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Role ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            }
+        },
+        "/updateuser": {
+            "put": {
+                "description": "This endpoint updates user information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update an existing user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "User data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}": {
+            "get": {
+                "description": "This endpoint retrieves a user by their ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get a user by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "This endpoint retrieves a list of users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get a list of users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetListUserResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "models.Course": {
+        "models.Appointment": {
             "type": "object",
             "properties": {
+                "appointment_date": {
+                    "type": "string"
+                },
+                "appointment_time": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
-                "description": {
+                "doctor_id": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "price_no_tutor": {
-                    "type": "number"
-                },
-                "price_tutor": {
-                    "type": "number"
-                },
-                "title": {
+                "patient_id": {
                     "type": "string"
                 },
-                "updated_at": {
+                "status": {
                     "type": "string"
                 }
             }
         },
-        "models.CreateCourse": {
+        "models.CreateAppointment": {
             "type": "object",
             "properties": {
-                "description": {
+                "appointment_date": {
                     "type": "string"
                 },
-                "price_no_tutor": {
-                    "type": "number"
+                "appointment_time": {
+                    "type": "string"
                 },
-                "price_tutor": {
-                    "type": "number"
+                "doctor_id": {
+                    "type": "string"
                 },
-                "title": {
+                "patient_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateDoctor": {
+            "type": "object",
+            "properties": {
+                "specialty": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "work_end": {
+                    "type": "string"
+                },
+                "work_start": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateRole": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateUser": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "string"
+                },
+                "user_name": {
                     "type": "string"
                 }
             }
@@ -278,17 +1046,101 @@ const docTemplate = `{
                 }
             }
         },
-        "models.GetListCourseResponse": {
+        "models.Doctor": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "specialty": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "work_end": {
+                    "type": "string"
+                },
+                "work_start": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.GetListDoctorResponse": {
             "type": "object",
             "properties": {
                 "count": {
                     "type": "integer"
                 },
-                "courses": {
+                "doctors": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Course"
+                        "$ref": "#/definitions/models.Doctor"
                     }
+                }
+            }
+        },
+        "models.GetListRoleResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Role"
+                    }
+                }
+            }
+        },
+        "models.GetListUserResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                }
+            }
+        },
+        "models.Login": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user_data": {
+                    "$ref": "#/definitions/models.User"
+                }
+            }
+        },
+        "models.Role": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -301,22 +1153,114 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UpdateCourse": {
+        "models.UpdateAppointment": {
             "type": "object",
             "properties": {
-                "description": {
+                "appointment_date": {
+                    "type": "string"
+                },
+                "appointment_time": {
+                    "type": "string"
+                },
+                "doctor_id": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "price_no_tutor": {
-                    "type": "number"
+                "patient_id": {
+                    "type": "string"
                 },
-                "price_tutor": {
-                    "type": "number"
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateDoctor": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
                 },
-                "title": {
+                "specialty": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "work_end": {
+                    "type": "string"
+                },
+                "work_start": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateRole": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateUser": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_name": {
                     "type": "string"
                 }
             }
@@ -334,6 +1278,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {
