@@ -35,5 +35,4 @@ COPY --from=builder /app/api/docs ./docs  # Swagger hujjatlari
 # Muhit o‘zgaruvchisini sozlash
 ENV DOT_ENV_PATH=config/.env
 
-# Ilovani ishga tushirish
 CMD ["/app/main"]
