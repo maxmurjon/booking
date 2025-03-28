@@ -13,6 +13,9 @@ RUN go mod download
 # Loyihani nusxalash
 COPY . .
 
+# Swagger hujjatlarini yaratish (Agar kerak bo‘lsa)
+RUN go install github.com/swaggo/swag/cmd/swag@latest && swag init -g cmd/main.go -o api/docs
+
 # Go ilovasini build qilish
 RUN go build -o main cmd/main.go
 
@@ -27,7 +30,7 @@ RUN apk add --no-cache ca-certificates
 # Qurilgan Go ilovasini nusxalash
 COPY --from=builder /app/main .  # Asosiy Go dastur
 COPY --from=builder /app/config ./config  # Konfiguratsiya fayllari
-COPY api/docs ./docs  # Swagger hujjatlari (endi builder'dan emas, lokal nusxadan olinadi)
+COPY --from=builder /app/api/docs ./docs  # Swagger hujjatlari
 
 # Muhit o‘zgaruvchisini sozlash
 ENV DOT_ENV_PATH=config/.env
