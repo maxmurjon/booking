@@ -1,8 +1,6 @@
 module booking
 
-go 1.22
-
-toolchain go1.24.1
+go 1.23.0
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

@@ -1,5 +1,5 @@
 # Builder stage
-FROM golang:1.22-alpine AS builder
+FROM golang:1.23.0-alpine AS builder
 
 # Ishchi katalogni sozlash
 WORKDIR /app
