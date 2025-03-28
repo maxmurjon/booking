@@ -22,7 +22,10 @@ WORKDIR /app
 # Kerakli fayllarni nusxalash
 COPY --from=builder /app/main .
 COPY --from=builder /app/config/.env config/.env
-COPY --from=builder /app/api/docs /app/api/docs  # Swagger fayllarini qo‘shish
+
+COPY --from=builder /app/api/docs/swagger.json /app/api/docs/swagger.json
+COPY --from=builder /app/api/docs/swagger.yaml /app/api/docs/swagger.yaml
+
 
 # Ilovani ishga tushirish
 CMD ["/app/main"]
