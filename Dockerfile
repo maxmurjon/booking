@@ -5,14 +5,14 @@ FROM golang:1.23-alpine AS builder
 WORKDIR /app
 
 # Go va kerakli paketlarni o‘rnatish
-RUN apk add --no-cache git
+RUN apk add --no-cache git ca-certificates
 
 # Go mod fayllarni nusxalash va bog‘liqliklarni yuklash
 COPY go.mod go.sum ./
-RUN go mod tidy
+RUN go mod download
 
 # Swagger CLI ni o‘rnatish
-RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN go install github.com/swaggo/swag/cmd/swag@v1.16.2
 
 # Hamma loyihani nusxalash
 COPY . .
@@ -27,6 +27,9 @@ RUN go build -o main cmd/main.go
 FROM alpine:3.16
 
 WORKDIR /app
+
+# Kerakli kutubxonalarni o‘rnatish
+RUN apk add --no-cache ca-certificates
 
 # Qurilgan Go ilovasini nusxalash
 COPY --from=builder /app/main .  # Asosiy Go dastur
