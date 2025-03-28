@@ -34,7 +34,7 @@ RUN apk add --no-cache ca-certificates
 # Qurilgan Go ilovasini nusxalash
 COPY --from=builder /app/main .  # Asosiy Go dastur
 COPY --from=builder /app/config .  # Konfiguratsiya fayllari
-COPY --from=builder /app/api/docs ./api/docs  # Swagger hujjatlari
+COPY --from=builder /app/docs ./api/docs
 
 # `.env` fayl yo‘qligi sababli konfiguratsiyani muhit o‘zgaruvchilari orqali sozlash
 ENV DOT_ENV_PATH=config/.env
